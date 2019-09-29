@@ -32,7 +32,7 @@ function launchChromeAndRunLighthouse(url, opts, config = null) {
     });
 }
 try {
-    // `who-to-greet` input defined in action metadata file
+    // `command` input defined in action metadata file
     const command = core.getInput('command');
     console.log(`Running following command ${command}!`);
     const time = (new Date()).toTimeString();
