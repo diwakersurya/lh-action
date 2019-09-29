@@ -40,6 +40,7 @@ try {
     // Get the JSON webhook payload for the event that triggered the workflow
     //const payload = JSON.stringify(github.context.payload, undefined, 2)
     //console.log(`The event payload: ${payload}`);
+    execa.commandSync('which npm');
     execa.commandSync(command);
     // Usage:
     launchChromeAndRunLighthouse('http://localhost:5000/', opts).then(results => {
