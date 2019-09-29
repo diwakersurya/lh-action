@@ -33,15 +33,15 @@ function launchChromeAndRunLighthouse(url, opts, config = null) {
 }
 try {
     // `command` input defined in action metadata file
-    const command = core.getInput('command');
-    console.log(`Running following command ${command}!`);
+    // const command = core.getInput('command');
+    // console.log(`Running following command ${command}!`);
     const time = (new Date()).toTimeString();
     core.setOutput("time", time);
     // Get the JSON webhook payload for the event that triggered the workflow
     //const payload = JSON.stringify(github.context.payload, undefined, 2)
     //console.log(`The event payload: ${payload}`);
-    execa.commandSync('which npm');
-    execa.commandSync(command);
+    // execa.commandSync('which npm');
+    // execa.commandSync(command);
     // Usage:
     launchChromeAndRunLighthouse('http://localhost:5000/', opts).then(results => {
         // Use results!
