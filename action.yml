@@ -1,13 +1,13 @@
 name: 'Lighthouse action'
 description: 'Run test and publish results'
-inputs: # command to run for launching
-    command:
-    description: 'this command starts the node server'
-    required: true
-    default: 'npm run dev'
-outputs: # id of output
+inputs:
+    command: #command to run for launching
+        description: 'this command starts the node server'
+        required: true
+        default: 'npm run dev'
+outputs: #id of output
     time:
-    description: 'The time we greeted you'
+        description: 'The time we greeted you'
 runs:
     using: 'node12'
     main: 'index.js'
