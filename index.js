@@ -60,8 +60,8 @@ try {
             console.log(JSON.stringify(result))
             await killNodeServer();
         } catch (e) {
-            killNodeServer();
             console.error("FAILED!", e);
+            killNodeServer();
         }
     })();
 } catch (error) {
