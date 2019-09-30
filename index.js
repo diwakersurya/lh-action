@@ -54,11 +54,11 @@ try {
     (async () => {
         try {
             const server = execAndLog("SERVER", "npm run start")
-            console.log("trying light house");
             const lighthouse = launchChromeAndRunLighthouse('http://localhost:5000', opts)
             const lhr = await Promise.race([server, lighthouse]);
             console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
-
+            const { stdout } = await execa.command("curl http://localhost:5000");
+            console.log(stdout);
             await killNodeServer();
         } catch (e) {
             console.error("FAILED!----------------", e);
