@@ -3,6 +3,7 @@ const github = require('@actions/github');
 const lighthouse = require('lighthouse');
 const chromeLauncher = require('chrome-launcher');
 const execa = require("execa");
+
 // try {
 //     // `who-to-greet` input defined in action metadata file
 //     const nameToGreet = core.getInput('who-to-greet');
@@ -15,8 +16,22 @@ const execa = require("execa");
 // } catch (error) {
 //     core.setFailed(error.message);
 // }
-
-const child_process_options = { stdio: "inherit", shell: true };
+const opts = {
+    chromeFlags: ['--show-paint-rects']
+};
+function launchChromeAndRunLighthouse(url, opts, config = null) {
+    return chromeLauncher.launch({ chromeFlags: opts.chromeFlags }).then(chrome => {
+        opts.port = chrome.port;
+        return lighthouse(url, opts, config).then(results => {
+            // use results.lhr for the JS-consumeable output
+            // https://github.com/GoogleChrome/lighthouse/blob/master/types/lhr.d.ts
+            // use results.report for the HTML/JSON/CSV output as a string
+            // use results.artifacts for the trace/screenshots/other specific case you need (rarer)
+            return chrome.kill().then(() => results.lhr)
+        });
+    });
+}
+const child_process_options = { stdio: "inherit",shell:true };
 async function execAndLog(type, cmd, options = child_process_options) {
     console.log(type, cmd)
     const { message } = await execa.command(cmd, options);
@@ -39,23 +54,9 @@ try {
     (async () => {
         try {
             const server = execAndLog("SERVER", "npm run start")
-
-            const url = 'http://localhost:5000';
-
-            // Use Puppeteer to launch headful Chrome and don't use its default 800x600 viewport.
-            const browser = await puppeteer.launch({
-                headless: false,
-                defaultViewport: null,
-            });
-            const { lhr } = await lighthouse(url, {
-                port: (new URL(browser.wsEndpoint())).port,
-                output: 'json',
-                logLevel: 'info',
-            });
-
-            console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
-
-            await browser.close();
+            const lighthouse = launchChromeAndRunLighthouse('http://localhost:5000/', opts)
+            const result = await Promise.race([server, lighthouse]);
+            console.log(JSON.stringify(result))
             await killNodeServer();
         } catch (e) {
             killNodeServer();
