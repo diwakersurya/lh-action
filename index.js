@@ -54,7 +54,8 @@ try {
     (async () => {
         try {
             const server = execAndLog("SERVER", "npm run start")
-            const lighthouse = launchChromeAndRunLighthouse('http://localhost:5000/', opts)
+            console.log("trying light house");
+            const lighthouse = launchChromeAndRunLighthouse('http://127.0.0.1:5000/', opts)
             const result = await Promise.race([server, lighthouse]);
             console.log(JSON.stringify(result))
             await killNodeServer();
