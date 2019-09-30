@@ -56,8 +56,9 @@ try {
             const server = execAndLog("SERVER", "npm run start")
             console.log("trying light house");
             const lighthouse = launchChromeAndRunLighthouse('http://localhost:5000', opts)
-            const result = await Promise.race([server, lighthouse]);
-            console.log(JSON.stringify(result))
+            const lhr = await Promise.race([server, lighthouse]);
+            console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
+
             await killNodeServer();
         } catch (e) {
             console.error("FAILED!----------------", e);
