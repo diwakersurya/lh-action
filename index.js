@@ -36,7 +36,7 @@ async function execAndLog(type, cmd, options = child_process_options) {
     console.log(type, cmd)
     const { message } = await execa.command(cmd, options);
     if (message) {
-        error("FAILED!!", message);
+        error("FAILED!!--------------", message);
     }
 }
 async function killNodeServer() {
@@ -55,12 +55,12 @@ try {
         try {
             const server = execAndLog("SERVER", "npm run start")
             console.log("trying light house");
-            const lighthouse = launchChromeAndRunLighthouse('http://127.0.0.1:5000/', opts)
+            const lighthouse = launchChromeAndRunLighthouse('http://localhost:5000', opts)
             const result = await Promise.race([server, lighthouse]);
             console.log(JSON.stringify(result))
             await killNodeServer();
         } catch (e) {
-            console.error("FAILED!", e);
+            console.error("FAILED!----------------", e);
             killNodeServer();
         }
     })();
