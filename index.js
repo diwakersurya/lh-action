@@ -17,7 +17,7 @@ const execa = require("execa");
 //     core.setFailed(error.message);
 // }
 const opts = {
-    chromeFlags: ['--show-paint-rects']
+    chromeFlags: ['--show-paint-rects', '--headless']
 };
 function launchChromeAndRunLighthouse(url, opts, config = null) {
     return chromeLauncher.launch({ chromeFlags: opts.chromeFlags }).then(chrome => {
