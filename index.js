@@ -31,7 +31,7 @@ function launchChromeAndRunLighthouse(url, opts, config = null) {
         });
     });
 }
-const child_process_options = { stdio: "inherit" };
+const child_process_options = { stdio: "inherit", shell: true };
 async function execAndLog(type, cmd, options = child_process_options) {
     console.log(type,cmd)
     const { message } = await execa.command(cmd, options);
@@ -53,7 +53,6 @@ try {
     //console.log(`The event payload: ${payload}`);
     (async () => {
         try {
-            console.log(execa.commandSync("cat package.json").stdout)
             const server = execAndLog("SERVER", "npm run start")
             const lighthouse = launchChromeAndRunLighthouse('http://localhost:5000/', opts)
             const result = await Promise.race([server, lighthouse]);
