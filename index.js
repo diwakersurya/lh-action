@@ -34,7 +34,7 @@ function launchChromeAndRunLighthouse(url, opts, config = null) {
 const child_process_options = { stdio: "inherit" };
 async function execAndLog(type, cmd, options = child_process_options) {
     console.log(type,cmd)
-    const { message } = await execa.shell(cmd, options);
+    const { message } = await execa.command(cmd, options);
     if (message) {
         error("FAILED!!", message);
     }
@@ -48,24 +48,20 @@ try {
     // `command` input defined in action metadata file
     // const command = core.getInput('command');
     // console.log(`Running following command ${command}!`);
-    const time = (new Date()).toTimeString();
-    core.setOutput("time", time);
     // Get the JSON webhook payload for the event that triggered the workflow
     //const payload = JSON.stringify(github.context.payload, undefined, 2)
     //console.log(`The event payload: ${payload}`);
-    // execa.commandSync('which npm');
-    // execa.commandSync(command);
-    // Usage:
     (async () => {
         try {
-            const server = execAndLog("SERVER", "npm run start");
+            console.log(execa.commandSync("cat package.json").stdout)
+            const server = execAndLog("SERVER", "npm run start")
             const lighthouse = launchChromeAndRunLighthouse('http://localhost:5000/', opts)
             const result = await Promise.race([server, lighthouse]);
             console.log(JSON.stringify(result))
             await killNodeServer();
         } catch (e) {
             killNodeServer();
-            error("FAILED!", e);
+            console.error("FAILED!", e);
         }
     })();
 
