@@ -64,7 +64,6 @@ try {
             console.error("FAILED!", e);
         }
     })();
-
 } catch (error) {
     core.setFailed(error.message);
 }
