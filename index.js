@@ -2,7 +2,20 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 const lighthouse = require('lighthouse');
 const chromeLauncher = require('chrome-launcher');
+const waitOn = require('wait-on');
 const execa = require("execa");
+
+var wOpts = {
+    resources: [
+        'http://localhost:5000',
+    ],
+    delay: 1000, // initial delay in ms, default 0
+    interval: 100, // poll interval in ms, default 250ms
+    timeout: 30000, // timeout in ms, default Infinity
+    tcpTimeout: 1000, // tcp timeout in ms, default 300ms
+    window: 1000, // stabilization time in ms, default 750ms
+    strictSSL: false
+};
 
 // try {
 //     // `who-to-greet` input defined in action metadata file
@@ -54,10 +67,11 @@ try {
     (async () => {
         try {
             const server = execa.command('npm run start', { stdio: "inherit", shell: true });
-            const lighthouse = launchChromeAndRunLighthouse('http://localhost:5000', opts)
-            const lhr = await Promise.race([server, lighthouse]);
+            await waitOn(wOpts);
+            // once here, all resources are available
+            const lhr = await launchChromeAndRunLighthouse('http://localhost:5000', opts);
             console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
-            core.debug( await execa.command("curl http://localhost:5000"));
+            core.debug(await execa.command("curl http://localhost:5000"));
             await killNodeServer();
         } catch (e) {
             console.error("FAILED!!!!----------------", e);
