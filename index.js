@@ -30,7 +30,7 @@ var wOpts = {
 //     core.setFailed(error.message);
 // }
 const opts = {
-    chromeFlags: ['--show-paint-rects','--headless']
+    chromeFlags: ['--show-paint-rects', '--headless',"--ignore-certificate-errors"]
 };
 function launchChromeAndRunLighthouse(url, opts, config = null) {
     return chromeLauncher.launch({ chromeFlags: opts.chromeFlags }).then(chrome => {
