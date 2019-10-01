@@ -32,7 +32,7 @@ var wOpts = {
 // }
 const opts = {
     chromeFlags: ['--show-paint-rects', '--headless',"--ignore-certificate-errors"],
-    logLevel: 'verbose'
+    logLevel: 'info'
 };
 log.setLevel(opts.logLevel);
 function launchChromeAndRunLighthouse(url, opts, config = null) {
@@ -60,24 +60,55 @@ async function killNodeServer() {
         await execAndLog("Server", "kill $(lsof -t -i:5000)");
     } catch (error) { }
 }
+
+getOverallScores(lhr) {
+    const cats = Object.keys(lhr.categories);
+    const obj = {};
+    for (const cat of cats) {
+        obj[cat] = lhr.categories[cat].score * 100;
+    }
+    return obj;
+}
+postLighthouseComment(github,prInfo, lhr, thresholds) {
+    let rows = '';
+    Object.values(lhr.categories).forEach(cat => {
+        //const threshold = thresholds[cat.id] || '-';
+        rows += `| ${cat.title} | ${cat.score * 100}\n`;
+    });
+
+    const body = `
+Updated [Lighthouse](https://developers.google.com/web/tools/lighthouse/) report for the changes in this PR:
+| Category | New score | Required threshold |
+| ------------- | ------------- | ------------- |
+${rows}
+_Tested with Lighthouse version: ${lhr.lighthouseVersion}_`;
+
+    const scores = getOverallScores(lhr);
+
+    // eslint-disable-next-line no-unused-vars
+    return github.issues.createComment(Object.assign({ body }, prInfo)).then(status => scores);
+}
+
 try {
     // `command` input defined in action metadata file
     // const command = core.getInput('command');
     // console.log(`Running following command ${command}!`);
     // Get the JSON webhook payload for the event that triggered the workflow
-    //const payload = JSON.stringify(github.context.payload, undefined, 2)
+
     //console.log(`The event payload: ${payload}`);
     (async () => {
         try {
+            const payload = JSON.stringify(github.context.payload, undefined, 2)
+            console.log(payload);
             const server = execa.command('npm run dev', { stdio: "inherit", shell: true });
             await waitOn(wOpts);
             // once here, all resources are available
             const lhr = await launchChromeAndRunLighthouse('http://localhost:5000', opts);
             console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
-            console.log(await execa.command("curl http://localhost:5000"));
             await killNodeServer();
+           // postLighthouseComment
         } catch (e) {
-            console.error("FAILED!!!!----------------", e);
+            console.error("FAILED!", e);
             killNodeServer();
         }
     })();
