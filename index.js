@@ -72,8 +72,8 @@ try {
             await waitOn(wOpts);
             // once here, all resources are available
             const lhr = await launchChromeAndRunLighthouse('http://localhost:5000', opts);
-            console.log(JSON.stringify(lhr))
-            console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
+            core.debug(JSON.stringify(lhr))
+            core.debug(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
             core.debug(await execa.command("curl http://localhost:5000"));
             await killNodeServer();
         } catch (e) {
