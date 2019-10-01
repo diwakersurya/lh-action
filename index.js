@@ -17,7 +17,7 @@ const execa = require("execa");
 //     core.setFailed(error.message);
 // }
 const opts = {
-    chromeFlags: ['--headless']
+    chromeFlags: ['--show-paint-rects','--headless']
 };
 function launchChromeAndRunLighthouse(url, opts, config = null) {
     return chromeLauncher.launch({ chromeFlags: opts.chromeFlags }).then(chrome => {
@@ -53,7 +53,7 @@ try {
     //console.log(`The event payload: ${payload}`);
     (async () => {
         try {
-            const server = execAndLog("SERVER", "npm run start")
+            const server = execa.command('npm run start', { stdio: "inherit", shell: true });
             const lighthouse = launchChromeAndRunLighthouse('http://localhost:5000', opts)
             const lhr = await Promise.race([server, lighthouse]);
             console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
