@@ -17,7 +17,7 @@ const execa = require("execa");
 //     core.setFailed(error.message);
 // }
 const opts = {
-    chromeFlags: ['--show-paint-rects']
+    chromeFlags: ['--headless']
 };
 function launchChromeAndRunLighthouse(url, opts, config = null) {
     return chromeLauncher.launch({ chromeFlags: opts.chromeFlags }).then(chrome => {
@@ -57,11 +57,10 @@ try {
             const lighthouse = launchChromeAndRunLighthouse('http://localhost:5000', opts)
             const lhr = await Promise.race([server, lighthouse]);
             console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
-            const { stdout } = await execa.command("curl http://localhost:5000");
-            console.log("--------------",stdout);
+            core.debug( await execa.command("curl http://localhost:5000"));
             await killNodeServer();
         } catch (e) {
-            console.error("FAILED!----------------", e);
+            console.error("FAILED!!!!----------------", e);
             killNodeServer();
         }
     })();
