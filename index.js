@@ -61,7 +61,7 @@ async function killNodeServer() {
     } catch (error) { }
 }
 
-getOverallScores(lhr) {
+function getOverallScores(lhr) {
     const cats = Object.keys(lhr.categories);
     const obj = {};
     for (const cat of cats) {
@@ -69,7 +69,7 @@ getOverallScores(lhr) {
     }
     return obj;
 }
-postLighthouseComment(github,prInfo, lhr, thresholds) {
+async function postLighthouseComment(github,prInfo, lhr, thresholds) {
     let rows = '';
     Object.values(lhr.categories).forEach(cat => {
         //const threshold = thresholds[cat.id] || '-';
