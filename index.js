@@ -66,7 +66,7 @@ try {
     //console.log(`The event payload: ${payload}`);
     (async () => {
         try {
-            const server = execa.command('npm run start', { stdio: "inherit", shell: true });
+            const server = execa.command('npm run dev', { stdio: "inherit", shell: true });
             await waitOn(wOpts);
             // once here, all resources are available
             const lhr = await launchChromeAndRunLighthouse('http://localhost:5000', opts);
