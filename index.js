@@ -4,6 +4,7 @@ const lighthouse = require('lighthouse');
 const chromeLauncher = require('chrome-launcher');
 const waitOn = require('wait-on');
 const execa = require("execa");
+const log = require('lighthouse-logger');
 
 var wOpts = {
     resources: [
@@ -30,8 +31,10 @@ var wOpts = {
 //     core.setFailed(error.message);
 // }
 const opts = {
-    chromeFlags: ['--show-paint-rects', '--headless',"--ignore-certificate-errors"]
+    chromeFlags: ['--show-paint-rects', '--headless',"--ignore-certificate-errors"],
+    logLevel: 'verbose'
 };
+log.setLevel(opts.logLevel);
 function launchChromeAndRunLighthouse(url, opts, config = null) {
     return chromeLauncher.launch({ chromeFlags: opts.chromeFlags }).then(chrome => {
         opts.port = chrome.port;
@@ -70,7 +73,6 @@ try {
             await waitOn(wOpts);
             // once here, all resources are available
             const lhr = await launchChromeAndRunLighthouse('http://localhost:5000', opts);
-            console.log(JSON.stringify(lhr))
             console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
             console.log(await execa.command("curl http://localhost:5000"));
             await killNodeServer();
