@@ -30,7 +30,7 @@ var wOpts = {
 //     core.setFailed(error.message);
 // }
 const opts = {
-    chromeFlags: ['--show-paint-rects','--headless']
+    chromeFlags: ['--show-paint-rects']
 };
 function launchChromeAndRunLighthouse(url, opts, config = null) {
     return chromeLauncher.launch({ chromeFlags: opts.chromeFlags }).then(chrome => {
@@ -40,6 +40,8 @@ function launchChromeAndRunLighthouse(url, opts, config = null) {
             // https://github.com/GoogleChrome/lighthouse/blob/master/types/lhr.d.ts
             // use results.report for the HTML/JSON/CSV output as a string
             // use results.artifacts for the trace/screenshots/other specific case you need (rarer)
+
+            console.log(JSON.stringify(results.lhr))
             return chrome.kill().then(() => results.lhr)
         });
     });
@@ -70,6 +72,7 @@ try {
             await waitOn(wOpts);
             // once here, all resources are available
             const lhr = await launchChromeAndRunLighthouse('http://localhost:5000', opts);
+            console.log(JSON.stringify(lhr))
             console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
             core.debug(await execa.command("curl http://localhost:5000"));
             await killNodeServer();
