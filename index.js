@@ -107,6 +107,7 @@ try {
         if(comment){
             const prInfo=getPRInfo(github.context.payload);
             const token=process.env["GITHUB_TOKEN"];
+            console.log(">>>>>>>>>",token)
             if(typeof token !== "undefined"){
                 const octokit=new github.Github(token);
                 await postLighthouseComment(octokit, prInfo,lhr)
