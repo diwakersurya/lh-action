@@ -16,10 +16,10 @@ const chromeLauncherOptions = {
 
 
 module.exports ={
-    getWaitOnOptions=function(options){
+    getWaitOnOptions:function(options){
         return Object.assign({}, waitOnOptions, options)
     },
-    getChromeLauncherOptions=function (options) {
+    getChromeLauncherOptions:function (options) {
             return Object.assign({}, chromeLauncherOptions, options)
     }
 

@@ -7,20 +7,6 @@ const execa = require("execa");
 const log = require('lighthouse-logger');
 const { getWaitOnOptions, getChromeLauncherOptions}=require("./helper");
 
-
-// try {
-//     // `who-to-greet` input defined in action metadata file
-//     const nameToGreet = core.getInput('who-to-greet');
-//     console.log(`Hello ${nameToGreet}!`);
-//     const time = (new Date()).toTimeString();
-//     core.setOutput("time", time);
-//     // Get the JSON webhook payload for the event that triggered the workflow
-//     const payload = JSON.stringify(github.context.payload, undefined, 2)
-//     console.log(`The event payload: ${payload}`);
-// } catch (error) {
-//     core.setFailed(error.message);
-// }
-
 function launchChromeAndRunLighthouse(url, opts, config = null) {
     return chromeLauncher.launch({ chromeFlags: opts.chromeFlags }).then(chrome => {
         opts.port = chrome.port;
@@ -68,7 +54,6 @@ _Tested with Lighthouse version: ${lhr.lighthouseVersion}_`;
 }
 
 async function startServer(command){
-
     const server = execa.command(command, { stdio: "inherit", shell: true });
     return server;
 }
@@ -94,8 +79,12 @@ async function killServer(server){
     }
 
 }
-async function run(){
-    let server =null;
+
+
+
+
+let server =null;
+(async ()=>{
 try {
         /**command to run for starting the server */
         const command = core.getInput('command');
@@ -123,5 +112,4 @@ try {
     killServer(server);
     core.setFailed(error.message);
 }
-
-run();
+})()
