@@ -5,9 +5,10 @@ const chromeLauncher = require('chrome-launcher');
 const waitOn = require('wait-on');
 const execa = require("execa");
 const log = require('lighthouse-logger');
+const lhConfig=require("./lhconfig");
 const { getWaitOnOptions, getChromeLauncherOptions}=require("./helper");
 
-function launchChromeAndRunLighthouse(url, opts, config = {maxWaitForFcp:20000}) {
+function launchChromeAndRunLighthouse(url, opts, config = null) {
     return chromeLauncher.launch({ chromeFlags: opts.chromeFlags }).then(chrome => {
         opts.port = chrome.port;
         return lighthouse(url, opts, config).then(results => {
@@ -104,7 +105,7 @@ try {
           console.log(">>>>>>>>>>>","two")
         const clOpts=setUpChromeLauncher()
           console.log(">>>>>>>>>>>","three",clOpts)
-        const lhr = await launchChromeAndRunLighthouse(url, clOpts);
+        const lhr = await launchChromeAndRunLighthouse(url, clOpts,lhConfig);
         console.log(lhr)
         console.log(">>>>>>>>>>>","four")
         console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
