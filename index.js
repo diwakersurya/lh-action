@@ -8,7 +8,7 @@ const log = require('lighthouse-logger');
 const { getWaitOnOptions, getChromeLauncherOptions}=require("./helper");
 
 function launchChromeAndRunLighthouse(url, opts, config = null) {
-    return chromeLauncher.launch({ chromeFlags: opts.chromeFlags }).then(chrome => {
+    return chromeLauncher.launch({ chromeFlags: opts.chromeFlags,startingUrl: url }).then(chrome => {
         opts.port = chrome.port;
         return lighthouse(url, opts, config).then(results => {
             // use results.lhr for the JS-consumeable output

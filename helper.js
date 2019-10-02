@@ -10,7 +10,7 @@ const waitOnOptions = {
 };
 
 const chromeLauncherOptions = {
-        chromeFlags: ['--show-paint-rects', "--ignore-certificate-errors"],
+        chromeFlags: ['--show-paint-rects', '--headless', "--ignore-certificate-errors","'--disable-gpu'"],
         logLevel: 'verbose'
 };
 
