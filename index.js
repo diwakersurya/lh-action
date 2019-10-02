@@ -100,7 +100,7 @@ try {
         /**command to run for starting the server */
         const command = core.getInput('command');
         /**url to hit after the server is available */
-                const url = core.getInput('url');
+        const url = core.getInput('url');
         const comment = core.getInput('comment')||true;
         const resultUrl=core.getInput('resultUrl')||null;
         const payload = JSON.stringify(github.context.payload, undefined, 2)
