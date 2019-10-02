@@ -61,6 +61,7 @@ function startServer(command){
 /** wait till the node server starts serving */
 async function waitOnServer(url){
     const wOpts=getWaitOnOptions({resources:[url]})
+    console.log(">>>>>>",wOpts)
     return waitOn(wOpts);
 }
 /** setup logging options for lighthouse */
@@ -103,8 +104,8 @@ try {
         const clOpts=setUpChromeLauncher()
         const lhr = await launchChromeAndRunLighthouse(url, clOpts);
         console.log(lhr)
-        console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
-        if(comment){
+       console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
+         if(comment){
             const prInfo=getPRInfo(github.context.payload);
             const token=process.env["GITHUB_TOKEN"];
             console.log(">>>>>>>>>",token)
