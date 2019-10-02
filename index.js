@@ -5,18 +5,8 @@ const chromeLauncher = require('chrome-launcher');
 const waitOn = require('wait-on');
 const execa = require("execa");
 const log = require('lighthouse-logger');
+const { getWaitOnOptions, getChromeLauncherOptions}=require("./helper");
 
-var wOpts = {
-    resources: [
-        'http://localhost:5000',
-    ],
-    delay: 1000, // initial delay in ms, default 0
-    interval: 100, // poll interval in ms, default 250ms
-    timeout: 30000, // timeout in ms, default Infinity
-    tcpTimeout: 1000, // tcp timeout in ms, default 300ms
-    window: 1000, // stabilization time in ms, default 750ms
-    strictSSL: false
-};
 
 // try {
 //     // `who-to-greet` input defined in action metadata file
@@ -30,11 +20,7 @@ var wOpts = {
 // } catch (error) {
 //     core.setFailed(error.message);
 // }
-const opts = {
-    chromeFlags: ['--show-paint-rects', '--headless',"--ignore-certificate-errors"],
-    logLevel: 'info'
-};
-log.setLevel(opts.logLevel);
+
 function launchChromeAndRunLighthouse(url, opts, config = null) {
     return chromeLauncher.launch({ chromeFlags: opts.chromeFlags }).then(chrome => {
         opts.port = chrome.port;
@@ -47,19 +33,6 @@ function launchChromeAndRunLighthouse(url, opts, config = null) {
         });
     });
 }
-const child_process_options = { stdio: "inherit",shell:true };
-async function execAndLog(type, cmd, options = child_process_options) {
-    console.log(type, cmd)
-    const { message } = await execa.command(cmd, options);
-    if (message) {
-        error("FAILED!!--------------", message);
-    }
-}
-async function killNodeServer() {
-    try {
-        await execAndLog("Server", "kill $(lsof -t -i:5000)");
-    } catch (error) { }
-}
 
 function getOverallScores(lhr) {
     const cats = Object.keys(lhr.categories);
@@ -69,7 +42,11 @@ function getOverallScores(lhr) {
     }
     return obj;
 }
-async function postLighthouseComment(github,prInfo, lhr, thresholds) {
+function getPRInfo(payload){
+    const { number,owner,repo}=payload;
+    return {owner,repo,number}
+}
+async function postLighthouseComment(github, lhr) {
     let rows = '';
     Object.values(lhr.categories).forEach(cat => {
         //const threshold = thresholds[cat.id] || '-';
@@ -78,40 +55,73 @@ async function postLighthouseComment(github,prInfo, lhr, thresholds) {
 
     const body = `
 Updated [Lighthouse](https://developers.google.com/web/tools/lighthouse/) report for the changes in this PR:
-| Category | New score | Required threshold |
+| Category | Score | Required threshold |
 | ------------- | ------------- | ------------- |
 ${rows}
 _Tested with Lighthouse version: ${lhr.lighthouseVersion}_`;
 
     const scores = getOverallScores(lhr);
+    const prInfo=getPRInfo(github.context.payload);
 
     // eslint-disable-next-line no-unused-vars
     return github.issues.createComment(Object.assign({ body }, prInfo)).then(status => scores);
 }
 
-try {
-    // `command` input defined in action metadata file
-    // const command = core.getInput('command');
-    // console.log(`Running following command ${command}!`);
-    // Get the JSON webhook payload for the event that triggered the workflow
+async function startServer(command){
 
-    //console.log(`The event payload: ${payload}`);
-    (async () => {
+    const server = execa.command(command, { stdio: "inherit", shell: true });
+    return server;
+}
+/** wait till the node server starts serving */
+async function waitOnServer(url){
+    const wOpts=getWaitOnOptions({resources:[url]})
+    return waitOn(wOpts);
+}
+/** setup logging options for lighthouse */
+function setUpChromeLauncher() {
+    const clOpts = getChromeLauncherOptions({})
+    log.setLevel(clOpts.logLevel);
+    return clOpts;
+}
+async function killServer(server){
+    if(!!server){
+        server.cancel()
         try {
-            const payload = JSON.stringify(github.context.payload, undefined, 2)
-            console.log(payload);
-            const server = execa.command('npm run dev', { stdio: "inherit", shell: true });
-            await waitOn(wOpts);
-            // once here, all resources are available
-            const lhr = await launchChromeAndRunLighthouse('http://localhost:5000', opts);
-            console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
-            await killNodeServer();
-           // postLighthouseComment
-        } catch (e) {
-            console.error("FAILED!", e);
-            killNodeServer();
+            await server;
+        } catch (error) {
+            console.log("Server Killed!!")
         }
-    })();
+    }
+
+}
+async function run(){
+    let server =null;
+try {
+        /**command to run for starting the server */
+        const command = core.getInput('command');
+        /**url to hit after the server is available */
+                const url = core.getInput('url');
+        const comment = core.getInput('comment')||true;
+        const resultUrl=core.getInput('resultUrl')||null;
+        const payload = JSON.stringify(github.context.payload, undefined, 2)
+        console.log(payload);
+        server = await startServer();
+        /** wait till the server is available */
+        await waitOnServer(url)
+        // once here, all resources are available
+        const clOpts=setUpChromeLauncher()
+        const lhr = await launchChromeAndRunLighthouse(url, clOpts);
+        console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
+        if(comment){
+            await postLighthouseComment(github, lhr)
+        }
+        if(resultUrl){
+            //send to database
+        }
+        await killServer(server);
 } catch (error) {
+    killServer(server);
     core.setFailed(error.message);
 }
+
+run();
