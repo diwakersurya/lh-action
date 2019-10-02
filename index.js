@@ -104,7 +104,7 @@ try {
         if(comment){
             await postLighthouseComment(github, lhr)
         }
-        if(resultUrl){
+        if(!!resultUrl){
             //send to database
         }
         await killServer(server);
