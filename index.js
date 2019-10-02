@@ -96,13 +96,10 @@ try {
 
         console.log(command,url,comment,resultUrl)
         const payload = JSON.stringify(github.context.payload, undefined, 2)
-        console.log(payload);
         server = startServer(command);
         /** wait till the server is available */
-        console.log(">>>>>>>>>>>","one")
         await waitOnServer(url)
         // once here, all resources are available
-          console.log(">>>>>>>>>>>","two")
         const clOpts=setUpChromeLauncher()
         const lhr = await launchChromeAndRunLighthouse(url, clOpts);
         console.log(lhr)
@@ -111,7 +108,7 @@ try {
             const prInfo=getPRInfo(github.context.payload);
             const token=process.env["GITHUB_TOKEN"];
             if(typeof token !== "undefined"){
-                const octokit=github.Github(token);
+                const octokit=new github.Github(token);
                 await postLighthouseComment(octokit, prInfo,lhr)
             }
         }
