@@ -11,7 +11,7 @@ const waitOnOptions = {
 
 const chromeLauncherOptions = {
         chromeFlags: ['--show-paint-rects', '--headless', "--ignore-certificate-errors"],
-        logLevel: 'info'
+        logLevel: 'verbose'
 };
 
 
