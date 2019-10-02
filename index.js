@@ -98,13 +98,19 @@ try {
         console.log(payload);
         server = await startServer(command);
         /** wait till the server is available */
+        console.log(">>>>>>>>>>>","one")
         await waitOnServer(url)
         // once here, all resources are available
+          console.log(">>>>>>>>>>>","two")
         const clOpts=setUpChromeLauncher()
+          console.log(">>>>>>>>>>>","three")
         const lhr = await launchChromeAndRunLighthouse(url, clOpts);
+        console.log(">>>>>>>>>>>","four")
         console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
         if(comment){
+                    console.log(">>>>>>>>>>>","five")
             await postLighthouseComment(github, lhr)
+              console.log(">>>>>>>>>>>","six")
         }
         if(!!resultUrl){
             //send to database
