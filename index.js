@@ -53,7 +53,7 @@ _Tested with Lighthouse version: ${lhr.lighthouseVersion}_`;
     return github.issues.createComment(Object.assign({ body }, prInfo)).then(status => scores);
 }
 
-async function startServer(command){
+function startServer(command){
     const server = execa.command(command, { stdio: "inherit", shell: true });
     return server;
 }
@@ -96,7 +96,7 @@ try {
         console.log(command,url,comment,resultUrl)
         const payload = JSON.stringify(github.context.payload, undefined, 2)
         console.log(payload);
-        server = await startServer(command);
+        server = startServer(command);
         /** wait till the server is available */
         console.log(">>>>>>>>>>>","one")
         await waitOnServer(url)
