@@ -92,6 +92,8 @@ try {
         const url = core.getInput('url');
         const comment = core.getInput('comment')||true;
         const resultUrl=core.getInput('resultUrl')||null;
+
+        console.log(command,url,comment,resultUrl)
         const payload = JSON.stringify(github.context.payload, undefined, 2)
         console.log(payload);
         server = await startServer();
