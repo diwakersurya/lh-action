@@ -105,6 +105,7 @@ try {
         const clOpts=setUpChromeLauncher()
           console.log(">>>>>>>>>>>","three",clOpts)
         const lhr = await launchChromeAndRunLighthouse(url, clOpts);
+        console.log(lhr)
         console.log(">>>>>>>>>>>","four")
         console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
         if(comment){
