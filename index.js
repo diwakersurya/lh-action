@@ -103,7 +103,7 @@ try {
         // once here, all resources are available
           console.log(">>>>>>>>>>>","two")
         const clOpts=setUpChromeLauncher()
-          console.log(">>>>>>>>>>>","three")
+          console.log(">>>>>>>>>>>","three",clOpts)
         const lhr = await launchChromeAndRunLighthouse(url, clOpts);
         console.log(">>>>>>>>>>>","four")
         console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);

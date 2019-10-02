@@ -20,7 +20,7 @@ module.exports ={
         return Object.assign({}, waitOnOptions, options)
     },
     getChromeLauncherOptions:function (options) {
-            return Object.assign({}, chromeLauncherOptions, options)
+            return Object.assign({}, chromeLauncherOptions, options={})
     }
 
 }
