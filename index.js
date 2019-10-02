@@ -7,7 +7,7 @@ const execa = require("execa");
 const log = require('lighthouse-logger');
 const { getWaitOnOptions, getChromeLauncherOptions}=require("./helper");
 
-function launchChromeAndRunLighthouse(url, opts, config = null) {
+function launchChromeAndRunLighthouse(url, opts, config = {maxWaitForFcp:20000}) {
     return chromeLauncher.launch({ chromeFlags: opts.chromeFlags }).then(chrome => {
         opts.port = chrome.port;
         return lighthouse(url, opts, config).then(results => {
