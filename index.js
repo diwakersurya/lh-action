@@ -29,10 +29,12 @@ function getOverallScores(lhr) {
     return obj;
 }
 function getPRInfo(payload){
-    const { number,owner,repo}=payload;
+    const {number}=payload;
+    const nwo = process.env['GITHUB_REPOSITORY'] || '/'
+    const [owner, repo] = nwo.split('/');
     return {owner,repo,number}
 }
-async function postLighthouseComment(github, lhr) {
+async function postLighthouseComment(octokit,prInfo={}, lhr) {
     let rows = '';
     Object.values(lhr.categories).forEach(cat => {
         //const threshold = thresholds[cat.id] || '-';
@@ -47,10 +49,9 @@ ${rows}
 _Tested with Lighthouse version: ${lhr.lighthouseVersion}_`;
 
     const scores = getOverallScores(lhr);
-    const prInfo=getPRInfo(github.context.payload);
 
     // eslint-disable-next-line no-unused-vars
-    return github.issues.createComment(Object.assign({ body }, prInfo)).then(status => scores);
+    return octokit.issues.createComment(Object.assign({ body }, prInfo)).then(status => scores);
 }
 
 function startServer(command){
@@ -103,15 +104,16 @@ try {
         // once here, all resources are available
           console.log(">>>>>>>>>>>","two")
         const clOpts=setUpChromeLauncher()
-          console.log(">>>>>>>>>>>","three",clOpts)
         const lhr = await launchChromeAndRunLighthouse(url, clOpts);
         console.log(lhr)
-        console.log(">>>>>>>>>>>","four")
         console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
         if(comment){
-                    console.log(">>>>>>>>>>>","five")
-            await postLighthouseComment(github, lhr)
-              console.log(">>>>>>>>>>>","six")
+            const prInfo=getPRInfo(github.context.payload);
+            const token=process.env["GITHUB_TOKEN"];
+            if(typeof token !== "undefined"){
+                const octokit=github.Github(token);
+                await postLighthouseComment(octokit, prInfo,lhr)
+            }
         }
         if(!!resultUrl){
             //send to database
