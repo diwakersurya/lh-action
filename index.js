@@ -96,7 +96,7 @@ try {
         console.log(command,url,comment,resultUrl)
         const payload = JSON.stringify(github.context.payload, undefined, 2)
         console.log(payload);
-        server = await startServer();
+        server = await startServer(command);
         /** wait till the server is available */
         await waitOnServer(url)
         // once here, all resources are available
