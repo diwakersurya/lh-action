@@ -69,7 +69,7 @@ async function screenshot(port) {
         form.append('data', buffer, { filename : 'screenshot.png' });
         form.submit('https://files.thetechlead.in/upload', function(err, res) {
         if (err) throw err;
-        console.log('Done!!!!');
+        console.log('Done!!!!',res);
     });
     }, delay);
   });
