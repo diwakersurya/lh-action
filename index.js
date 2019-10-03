@@ -11,8 +11,7 @@ const CDP = require('chrome-remote-interface');
 const argv = require('minimist')(process.argv.slice(2));
 const file = require('fs');
 
-// CLI Args
-const url = argv.url || 'https://www.google.com';
+
 const format = 'png';
 const viewportWidth = 1440;
 const viewportHeight = 900;
@@ -20,7 +19,7 @@ const delay = 0;
 const fullPage = true;
 
 // Start the Chrome Debugging Protocol
-async function screenshot(port) {
+async function takeScreenshot(port,url) {
     const client = await CDP();
   // Extract used DevTools domains.
   const {DOM, Emulation, Network, Page} = client;
@@ -85,7 +84,7 @@ const { getWaitOnOptions, getChromeLauncherOptions}=require("./helper");
 function launchChromeAndRunLighthouse(url, opts, config = null) {
     return chromeLauncher.launch({ chromeFlags: opts.chromeFlags,startingUrl: url }).then(chrome => {
         opts.port = chrome.port;
-        await screenshot(opts.port)
+        await takeScreenshot(opts.port,url)
         // return lighthouse(url, opts, config).then(results => {
         //     chrome.
         //     // use results.lhr for the JS-consumeable output
