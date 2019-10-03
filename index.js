@@ -103,7 +103,7 @@ try {
         // once here, all resources are available
         const clOpts=setUpChromeLauncher()
         const lhr = await launchChromeAndRunLighthouse(url, clOpts);
-        console.log(lhr)
+       // console.log(lhr)
        console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
          if(comment){
             const prInfo=getPRInfo(github.context.payload);
