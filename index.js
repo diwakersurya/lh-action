@@ -20,7 +20,7 @@ const fullPage = true;
 
 // Start the Chrome Debugging Protocol
 async function takeScreenshot(port,url) {
-    const client = await CDP();
+    const client = await CDP({port});
   // Extract used DevTools domains.
   const {DOM, Emulation, Network, Page} = client;
 
