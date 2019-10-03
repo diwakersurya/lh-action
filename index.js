@@ -84,7 +84,7 @@ const { getWaitOnOptions, getChromeLauncherOptions}=require("./helper");
 function launchChromeAndRunLighthouse(url, opts, config = null) {
     return chromeLauncher.launch({ chromeFlags: opts.chromeFlags,startingUrl: url }).then(chrome => {
         opts.port = chrome.port;
-        await takeScreenshot(opts.port,url)
+        return takeScreenshot(opts.port,url).then(()=>chrome.kill().then(() => {success:"true"}))
         // return lighthouse(url, opts, config).then(results => {
         //     chrome.
         //     // use results.lhr for the JS-consumeable output
@@ -93,7 +93,6 @@ function launchChromeAndRunLighthouse(url, opts, config = null) {
         //     // use results.artifacts for the trace/screenshots/other specific case you need (rarer)
         //     return chrome.kill().then(() => results.lhr)
         // });
-        return chrome.kill().then(() => {success:"true"});
     });
 }
 
