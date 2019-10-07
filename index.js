@@ -45,16 +45,19 @@ async function takeScreenshot(port,url) {
 
   // Wait for page load event to take screenshot
   Page.loadEventFired(async () => {
+
+    console.log(">>>>>>>>>>>>>>>>>>>>page Loaded")
     // If the `full` CLI option was passed, we need to measure the height of
     // the rendered page and use Emulation.setVisibleSize
     if (fullPage) {
+            console.log(">>>>>>>>>>>>>>>>>>>>inside full page")
       const {root: {nodeId: documentNodeId}} = await DOM.getDocument();
       const {nodeId: bodyNodeId} = await DOM.querySelector({
         selector: 'body',
         nodeId: documentNodeId,
       });
       const {model: {height}} = await DOM.getBoxModel({nodeId: bodyNodeId});
-
+  console.log(">>>>>>>>>>>>>>>>>>>>height",height)
       await Emulation.setVisibleSize({width: viewportWidth, height: height});
       // This forceViewport call ensures that content outside the viewport is
       // rendered, otherwise it shows up as grey. Possibly a bug?
@@ -63,6 +66,7 @@ async function takeScreenshot(port,url) {
 
     setTimeout(async function() {
       const screenshot = await Page.captureScreenshot({format});
+      console.log(">>>>>>>>>> screenshot data:",screenshot.data)
       const buffer = new Buffer(screenshot.data, 'base64');
         var form = new FormData();
         form.append('data', buffer, { filename : 'screenshot.png' });
@@ -84,6 +88,7 @@ const { getWaitOnOptions, getChromeLauncherOptions}=require("./helper");
 function launchChromeAndRunLighthouse(url, opts, config = null) {
     return chromeLauncher.launch({ chromeFlags: opts.chromeFlags,startingUrl: url }).then(chrome => {
         opts.port = chrome.port;
+        console.log("taking screenshots")
         return takeScreenshot(opts.port,url).then(()=>chrome.kill().then(() => {success:"true"}))
         // return lighthouse(url, opts, config).then(results => {
         //     chrome.
