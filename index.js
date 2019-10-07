@@ -70,7 +70,7 @@ async function takeScreenshot(port,url) {
       const buffer = new Buffer(screenshot.data, 'base64');
         var form = new FormData();
         form.append('data', buffer, { filename : 'screenshot.png' });
-        form.submit('https://files.thetechlead.in/upload', function(err, res) {
+        form.submit('https://myfiles.glitch.me/upload', function(err, res) {
         if (err) throw err;
         console.log('Done!!!!',res);
     });
