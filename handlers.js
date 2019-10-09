@@ -1,4 +1,4 @@
-import dbHandler from "./dbHandler";
+const dbHandler =require("./dbHandler");
 let resultHandlers=[dbHandler];
 
 function add(handler){
