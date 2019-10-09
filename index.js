@@ -108,6 +108,7 @@ try {
        console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
          if(comment){
             const prInfo=getPRInfo(github.context.payload);
+            console.log(">>>>>>>>\n\n\n",github)
             const token=process.env["GITHUB_TOKEN"];
             console.log(">>>>>>>>>",token)
             if(typeof token !== "undefined"){
