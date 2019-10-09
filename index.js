@@ -5,6 +5,7 @@ const chromeLauncher = require('chrome-launcher');
 const waitOn = require('wait-on');
 const execa = require("execa");
 const log = require('lighthouse-logger');
+const handlers=require('./handlers');
 
 const { getWaitOnOptions, getChromeLauncherOptions}=require("./helper");
 
@@ -100,7 +101,7 @@ try {
         const payload = JSON.stringify(github.context.payload, undefined, 2)
         server = startServer(command);
         /** wait till the server is available */
-        await waitOnServer(url)
+        //await waitOnServer(url)
         // once here, all resources are available
         const clOpts=setUpChromeLauncher()
         const lhr = await launchChromeAndRunLighthouse(url, clOpts);
@@ -108,18 +109,15 @@ try {
        console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
          if(comment){
             const prInfo=getPRInfo(github.context.payload);
-            console.log(">>>>>>>>\n\n\n",github)
             const token=process.env["GITHUB_TOKEN"];
-            console.log(">>>>>>>>>",token)
             if(typeof token !== "undefined"){
                 const octokit=new github.GitHub(token);
                 await postLighthouseComment(octokit, prInfo,lhr)
             }
         }
-        if(!!resultUrl){
-            //send to database
-        }
+        await Promise.all(handlers);
         await killServer(server);
+
 } catch (error) {
     killServer(server);
     core.setFailed(error.message);
