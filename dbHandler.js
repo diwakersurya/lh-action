@@ -1,4 +1,4 @@
-const db=require('db');
+const db=require('./db');
 
 const dbName='lighthouse.json';
 module.exports=async function(lhData){

@@ -7,7 +7,7 @@ async function save(db,key,value){
 }
 
 async function get(db,key){
-    return axios.get(`${url}/${dbName}`;
+    return axios.get(`${url}/${dbName}`);
 }
 
 async function create(db){
