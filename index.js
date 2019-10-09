@@ -5,99 +5,19 @@ const chromeLauncher = require('chrome-launcher');
 const waitOn = require('wait-on');
 const execa = require("execa");
 const log = require('lighthouse-logger');
-var FormData = require('form-data');
-
-const CDP = require('chrome-remote-interface');
-const argv = require('minimist')(process.argv.slice(2));
-const file = require('fs');
-
-
-const format = 'png';
-const viewportWidth = 1440;
-const viewportHeight = 900;
-const delay = 0;
-const fullPage = true;
-
-// Start the Chrome Debugging Protocol
-async function takeScreenshot(port,url) {
-    const client = await CDP({port});
-  // Extract used DevTools domains.
-  const {DOM, Emulation, Network, Page} = client;
-
-  // Enable events on domains we are interested in.
-  await Page.enable();
-  await DOM.enable();
-  await Network.enable();
-
-  // Set up viewport resolution, etc.
-  const deviceMetrics = {
-    width: viewportWidth,
-    height: viewportHeight,
-    deviceScaleFactor: 0,
-    mobile: false,
-    fitWindow: false
-  };
-  await Emulation.setDeviceMetricsOverride(deviceMetrics);
-  await Emulation.setVisibleSize({width: viewportWidth, height: viewportHeight});
-
-  // Navigate to target page
-  await Page.navigate({url});
-
-  // Wait for page load event to take screenshot
-  Page.loadEventFired(async () => {
-
-    console.log(">>>>>>>>>>>>>>>>>>>>page Loaded")
-    // If the `full` CLI option was passed, we need to measure the height of
-    // the rendered page and use Emulation.setVisibleSize
-    if (fullPage) {
-            console.log(">>>>>>>>>>>>>>>>>>>>inside full page")
-      const {root: {nodeId: documentNodeId}} = await DOM.getDocument();
-      const {nodeId: bodyNodeId} = await DOM.querySelector({
-        selector: 'body',
-        nodeId: documentNodeId,
-      });
-      const {model: {height}} = await DOM.getBoxModel({nodeId: bodyNodeId});
-  console.log(">>>>>>>>>>>>>>>>>>>>height",height)
-      await Emulation.setVisibleSize({width: viewportWidth, height: height});
-      // This forceViewport call ensures that content outside the viewport is
-      // rendered, otherwise it shows up as grey. Possibly a bug?
-      await Emulation.forceViewport({x: 0, y: 0, scale: 1});
-    }
-
-    setTimeout(async function() {
-      const screenshot = await Page.captureScreenshot({format});
-      console.log(">>>>>>>>>> screenshot data:",screenshot.data)
-      const buffer = new Buffer(screenshot.data, 'base64');
-        var form = new FormData();
-        form.append('data', buffer, { filename : 'screenshot.png' });
-        form.submit('https://myfiles.glitch.me/upload', function(err, res) {
-        if (err) throw err;
-        console.log('Done!!!!',res);
-    });
-    }, delay);
-  });
-}
-
-
-
-
-
 
 const { getWaitOnOptions, getChromeLauncherOptions}=require("./helper");
 
 function launchChromeAndRunLighthouse(url, opts, config = null) {
     return chromeLauncher.launch({ chromeFlags: opts.chromeFlags,startingUrl: url }).then(chrome => {
         opts.port = chrome.port;
-        console.log("taking screenshots")
-        return takeScreenshot(opts.port,url).then(()=>chrome.kill().then(() => {success:"true"}))
-        // return lighthouse(url, opts, config).then(results => {
-        //     chrome.
-        //     // use results.lhr for the JS-consumeable output
-        //     // https://github.com/GoogleChrome/lighthouse/blob/master/types/lhr.d.ts
-        //     // use results.report for the HTML/JSON/CSV output as a string
-        //     // use results.artifacts for the trace/screenshots/other specific case you need (rarer)
-        //     return chrome.kill().then(() => results.lhr)
-        // });
+        return lighthouse(url, opts, config).then(results => {
+            // use results.lhr for the JS-consumeable output
+            // https://github.com/GoogleChrome/lighthouse/blob/master/types/lhr.d.ts
+            // use results.report for the HTML/JSON/CSV output as a string
+            // use results.artifacts for the trace/screenshots/other specific case you need (rarer)
+            return chrome.kill().then(() => results.lhr)
+        });
     });
 }
 
