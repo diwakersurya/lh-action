@@ -115,9 +115,9 @@ try {
                 await postLighthouseComment(octokit, prInfo,lhr)
             }
         }
-        await Promise.all(handlers);
         await killServer(server);
-
+        const promises= handlers.map(handler=>handler(lhr));
+        await Promise.all(promises);
 } catch (error) {
     killServer(server);
     core.setFailed(error.message);
