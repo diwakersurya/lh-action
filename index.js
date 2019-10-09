@@ -5,7 +5,7 @@ const chromeLauncher = require('chrome-launcher');
 const waitOn = require('wait-on');
 const execa = require("execa");
 const log = require('lighthouse-logger');
-const handlers=require('./handlers');
+const handlers=require('./handlers').getHandlers();
 
 const { getWaitOnOptions, getChromeLauncherOptions}=require("./helper");
 
