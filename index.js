@@ -7,7 +7,7 @@ const execa = require("execa");
 const log = require('lighthouse-logger');
 const handlers=require('./handlers').getHandlers();
 
-const { getWaitOnOptions, getChromeLauncherOptions}=require("./helper");
+const { getChromeLauncherOptions}=require("./helper");
 
 function launchChromeAndRunLighthouse(url, opts, config = null) {
     return chromeLauncher.launch({ chromeFlags: opts.chromeFlags,startingUrl: url }).then(chrome => {
@@ -34,7 +34,12 @@ function getPRInfo(payload){
     const {number}=payload;
     const nwo = process.env['GITHUB_REPOSITORY'] || '/'
     const [owner, repo] = nwo.split('/');
-    return {owner,repo,number}
+    return {owner,repo,issue_number:number}
+}
+function getGHInfo(){
+    const nwo = process.env['GITHUB_REPOSITORY'] || '/'
+    const [owner, repo] = nwo.split('/');
+    return {owner,repo}
 }
 async function postLighthouseComment(octokit,prInfo={}, lhr) {
     let rows = '';
@@ -59,12 +64,6 @@ _Tested with Lighthouse version: ${lhr.lighthouseVersion}_`;
 function startServer(command){
     const server = execa.command(command, { stdio: "inherit", shell: true });
     return server;
-}
-/** wait till the node server starts serving */
-async function waitOnServer(url){
-    const wOpts=getWaitOnOptions({resources:[url]})
-    console.log(">>>>>>",wOpts)
-    return waitOn(wOpts);
 }
 /** setup logging options for lighthouse */
 function setUpChromeLauncher() {
@@ -100,14 +99,10 @@ try {
         console.log(command,url,comment,resultUrl)
         const payload = JSON.stringify(github.context.payload, undefined, 2)
         server = startServer(command);
-        /** wait till the server is available */
-        //await waitOnServer(url)
         // once here, all resources are available
         const clOpts=setUpChromeLauncher()
         const lhr = await launchChromeAndRunLighthouse(url, clOpts);
-       // console.log(lhr)
        console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
-
          if(comment){
             const prInfo=getPRInfo(github.context.payload);
             const token=process.env["GITHUB_TOKEN"];
@@ -117,10 +112,11 @@ try {
             }
         }
         await killServer(server);
-        const promises= handlers.map(handler=>handler(lhr));
+        const promises= handlers.map(handler=>handler({lhr,ghInfo:getGHInfo()}));
         await Promise.all(promises);
 } catch (error) {
     killServer(server);
+    console.error(error);
     core.setFailed(error.message);
 }
 })()
