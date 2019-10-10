@@ -107,6 +107,7 @@ try {
         const lhr = await launchChromeAndRunLighthouse(url, clOpts);
        // console.log(lhr)
        console.log(`Lighthouse scores: ${Object.values(lhr.categories).map(c => c.score).join(', ')}`);
+
          if(comment){
             const prInfo=getPRInfo(github.context.payload);
             const token=process.env["GITHUB_TOKEN"];
