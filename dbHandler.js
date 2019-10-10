@@ -1,7 +1,7 @@
 const db=require('./db');
 
 const dbName='lighthouse.json';
-module.exports=async function(lhData){
+module.exports=async function(lhr){
     const data=Object.values(lhr.categories).reduce((accumulator,cat) => {
         //const threshold = thresholds[cat.id] || '-';
         accumulator[cat.title]=cat.score;
