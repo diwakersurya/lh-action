@@ -16,7 +16,7 @@
     "chrome-remote-interface": "^0.28.0",
     "execa": "^2.0.4",
     "form-data": "^2.5.1",
-    "lighthouse": "^5.4.0",
+    "lighthouse": "^9.6.8",
     "lighthouse-logger": "^1.2.0",
     "wait-on": "^3.3.0"
   }
